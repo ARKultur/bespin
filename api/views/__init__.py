@@ -18,6 +18,7 @@ from rest_framework.status import (
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
+from api.backends import EmailBackend
 from api.permissions import *
 
 
@@ -50,7 +51,7 @@ class LoginView(APIView):
             }, status=HTTP_400_BAD_REQUEST)
 
         email = email.lower()
-        account = EmailBackend().get_account(email)
+        account = EmailBackend().get_user_by_email(email)
         if not account:
             return Response({
                 'error': 'no such account',
@@ -102,4 +103,4 @@ class PingView(APIView):
     @staticmethod
     def get(request):
         content = {'message': 'pong !'}
-        return Response(content)
+        return Response(content, status=HTTP_200_OK)

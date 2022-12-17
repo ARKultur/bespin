@@ -139,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "api.auth"
 AUTHENTICATION_BACKENDS = [
-    'api.core.backends.EmailBackend',
+    'api.backends.EmailBackend',
 ]
 
 

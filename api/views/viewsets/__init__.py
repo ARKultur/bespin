@@ -12,12 +12,13 @@ from rest_framework.status import (
 from api.serializers import *
 from api.serializers.domains import *
 
-from api.permissions import IsAdmin, IsOwner
+from api.permissions import IsAdmin, IsOwner, PostOnly
 
 """This module stores the generic viewsets used when basic CRUD is required
 
 - TwoFactorViewset: 2FA class CRUD
 - AuthViewset: Auth class CRUD
+- RegisterViewset: Customer creation route
 - CustomerViewset: Customer CRUD
 - AdminViewset: Admin CRUD
 - DomainViewset: Address class CRUD (+ nested customer & nodes)
@@ -31,6 +32,13 @@ class TwoFactorViewset(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
     authentication_classes = [TokenAuthentication]
     serializer_class = TwoFactorAuthSerializer
+
+
+class RegisterViewset(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    permission_classes = [PostOnly]
+    authentication_classes = []
+    serializer_class = CustomerSerializer
 
 
 class CustomerViewset(viewsets.ModelViewSet):

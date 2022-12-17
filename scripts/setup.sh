@@ -16,17 +16,6 @@ install_requirements () {
     . ${VENV_PATH}/bin/activate && sudo -H pip3 install -r requirements.txt
 }
 
-setup_db() {
-    POSTGRES_DB="${POSTGRES_DB}${1}"
-
-    # Create the database
-    echo "Creating database $POSTGRES_DB"
-    sudo -u postgres psql -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';"
-    sudo -u postgres psql -c "GRANT postgres TO $POSTGRES_USER;"
-    sudo -u postgres psql -c "CREATE DATABASE $POSTGRES_DB;"
-    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $POSTGRES_DB TO $POSTGRES_USER;"
-}
-
 install_postgresql () {
     # Assumes you're on Ubuntu for simplicity
     sudo apt-get install -y postgresql postgresql-contrib libpq-dev || true
@@ -39,8 +28,12 @@ install_postgresql () {
     export POSTGRES_PASSWORD="postgres"
     export POSTGRES_DB="bespin"
 
-    # Setting up development and test database
-    setup_db "" 2>/dev/null
+    # Create the database
+    echo "Creating database $POSTGRES_DB"
+    sudo -u postgres psql -c "CREATE USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD';" || true
+    sudo -u postgres psql -c "GRANT postgres TO $POSTGRES_USER;" || true
+    sudo -u postgres psql -c "CREATE DATABASE $POSTGRES_DB;"
+    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $POSTGRES_DB TO $POSTGRES_USER;"
 }
 
 

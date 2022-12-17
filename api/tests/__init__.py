@@ -1,5 +1,8 @@
 import os
 import logging
+from datetime import datetime
+
+from faker import Faker
 
 from django.conf import settings
 from django.db import transaction
@@ -53,3 +56,39 @@ class AuthTestCase(TransactionTestCase):
         client = APIClient()
         response = client.post('/login', format='json', data={'email': self.admin.auth.email, 'password': '1234'})
         self.assertEqual(response.status_code, 403)
+
+
+class RegisterTestCase(TransactionTestCase):
+    """
+        Tests account registration feature
+    """
+
+    def test_can_register_new_customer(self) -> None:
+        client = APIClient()
+        fake = Faker()
+
+        name = fake.name()
+        registration_settings = {
+          "auth": {
+            "username": name.split(' ')[0],
+            "email": fake.email(),
+            "first_name": name.split(' ')[0],
+            "last_name": name.split(' ')[1],
+            "two_factor": {
+              "enabled": True,
+              "method": 1
+            },
+            "password": random_user_password()
+          },
+          "creation_date": "2022-12-17T21:36:37.402Z"
+        }
+        response = client.post('/register', format='json', data=registration_settings)
+        self.assertEqual(response.status_code, 201)
+
+    def test_invalid_data(self) -> None:
+        client = APIClient()
+        registration_settings = {
+                'first_name': 'kendrick',
+                }
+        response = client.post('/register', format='json', data=registration_settings)
+        self.assertEqual(response.status_code, 400)

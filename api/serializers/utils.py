@@ -6,7 +6,7 @@ from typing import List, Any
 def create_instance(Class: Any, data: dict[str, str], object_name: str) -> Any:
     """create a single instance of a Class from an object, using a serializers's validated_data"""
     object_data = data.pop(object_name)
-    created_object, created = Class.objects.get_or_create(**object_name)
+    created_object = Class.objects.create(**object_data)
     return created_object
 
 
@@ -15,6 +15,6 @@ def create_mutiple_instances(Class: Any, data: dict[str, str], object_name: str)
     result = []
     object_data = data.pop(object_name)
     for o in object_data:
-        created_object, created = Class.objects.get_or_create(**object_name)
+        created_object = Class.objects.create(**object_data)
         result.append(created_object)
     return result

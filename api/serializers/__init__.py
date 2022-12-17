@@ -9,7 +9,7 @@ from api.serializers.utils import create_instance
 class TwoFactorAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = TwoFactorAuth
-        fields = ['enabled', 'method']
+        fields = '__all__'
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -46,10 +46,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        object_data = data.pop('auth')
-        validated_data['auth'], created = Auth.objects.get_or_create(role=1,
-                is_staff=False, is_superuser=False, **object_name)
-        return Admin.objects.get_or_create(**validated_data)
+        auth_data = validated_data.pop('auth')
+        auth_data['role'] = 1
+        auth_data['is_superuser'] = False
+        auth_data['is_staff'] = False
+        two_factor = create_instance(TwoFactorAuth, auth_data, 'two_factor')
+        auth = Auth.objects.create(two_factor=two_factor, **auth_data)
+        return Admin.objects.create(auth=auth, **validated_data)
 
 
 class AdminSerializer(serializers.ModelSerializer):
@@ -60,7 +63,10 @@ class AdminSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        object_data = data.pop('auth')
-        validated_data['auth'], created = Auth.objects.get_or_create(role=2,
-                is_staff=False, is_superuser=False, **object_name)
-        return Admin.objects.get_or_create(**validated_data)
+        auth_data = data.pop('auth')
+        auth_data['role'] = 2
+        auth_data['is_superuser'] = True
+        auth_data['is_staff'] = True
+        two_factor = create_instance(TwoFactorAuth, auth_data, 'two_factor')
+        auth = Auth.objects.create(two_factor=two_factor, **auth_data)
+        return Admin.objects.create(auth=auth, **validated_data)

@@ -7,8 +7,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate, APIClient
 
 from faker import Faker
 
-# admin credentials are set by default
-def login_as(email: str = 'sheev.palpatine@naboo.net', password: str = 'sidious1337'):
+def login_as(email: str, password: str):
     login = LoginView.as_view()
     fct = APIRequestFactory()
     body = {

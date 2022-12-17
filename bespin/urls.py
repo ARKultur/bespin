@@ -37,5 +37,6 @@ urlpatterns = [
     path('login', LoginView.as_view()),
     path('logout', LogoutView.as_view()),
     path('ping', PingView.as_view()),
+    path('register', RegisterViewset.as_view({'post': 'create'})),
     re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ] + router.urls

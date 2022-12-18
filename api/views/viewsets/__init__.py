@@ -43,8 +43,8 @@ class RegisterViewset(viewsets.ModelViewSet):
 
 class CustomerViewset(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
-    authentication_classes = [TokenAuthentication]
+    permission_classes = []
+    authentication_classes = []
     serializer_class = CustomerSerializer
 
 

@@ -55,7 +55,7 @@ class Auth(AbstractUser):
         (2, 'admin'),
     )
 
-    role = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES)
+    role = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, editable=False)
     email = models.CharField(max_length=64, unique=True)
     password = models.CharField(max_length=128)
     two_factor = models.OneToOneField(TwoFactorAuth, on_delete=models.CASCADE)

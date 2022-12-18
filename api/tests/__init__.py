@@ -92,3 +92,81 @@ class RegisterTestCase(TransactionTestCase):
                 }
         response = client.post('/register', format='json', data=registration_settings)
         self.assertEqual(response.status_code, 400)
+
+
+class CrudCustomerTestCase(TransactionTestCase):
+    def setUp(self) -> None:
+        self.admin = create_random_admin()
+        self.client = APIClient()
+        self.auth_token = login_as(self.admin.auth.email, random_user_password())
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.auth_token}')
+
+    def tearDown(self) -> None:
+        response = self.client.get(f'/logout')
+        self.assertEqual(response.status_code, 200)
+        self.admin.delete()
+
+    def test_create_a_customer(self):
+        fake = Faker()
+        name = fake.name()
+        creation_data = {
+          "auth": {
+            "username": name.split(' ')[0],
+            "email": fake.email(),
+            "first_name": name.split(' ')[0],
+            "last_name": name.split(' ')[1],
+            "two_factor": {
+              "enabled": True,
+              "method": 1
+            },
+            "password": random_user_password()
+          },
+          "creation_date": "2022-12-17T21:36:37.402Z"
+        }
+        resp = self.client.post('/customer', format='json', data=creation_data)
+        self.assertEqual(resp.status_code, 201)
+
+
+    def test_update_a_customer(self):
+        fake = Faker()
+        name = fake.name()
+        creation_data = {
+          "auth": {
+            "username": name.split(' ')[0],
+            "email": fake.email(),
+            "first_name": name.split(' ')[0],
+            "last_name": name.split(' ')[1],
+            "two_factor": {
+              "enabled": True,
+              "method": 1
+            },
+            "password": random_user_password()
+          },
+          "creation_date": "2022-12-17T21:36:37.402Z"
+        }
+        resp = self.client.post('/customer', format='json', data=creation_data)
+        self.assertEqual(resp.status_code, 201)
+        name = fake.name()
+        update_data = {
+            "auth": {
+                "username": name.split(' ')[0],
+                "email": fake.email(),
+                "first_name": name.split(' ')[0],
+                "last_name": name.split(' ')[1],
+                "role": 1,
+                "two_factor": {
+                  "enabled": False,
+                  "method": 1
+                },
+                "password": random_user_password()
+          },
+          "creation_date": "2022-12-17T21:36:37.402Z"
+        }
+
+        id = resp.data["id"]
+        print(f'[+] Created customer with id {id}')
+        resp = self.client.get(f'/customer/{id}', format='json')
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.patch(f'/customer/{id}', format='json', data=update_data)
+        self.assertEqual(resp.status_code, 200)

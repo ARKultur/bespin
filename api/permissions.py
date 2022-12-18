@@ -50,7 +50,7 @@ class IsOwner(permissions.BasePermission):
 
 
 def user_has_role(request, role: str) -> bool:
-    user_roles = ['customer', 'admin']
+    user_roles = ['placeholder', 'customer', 'admin']
     return user_roles[request.user.role] == role
 
 

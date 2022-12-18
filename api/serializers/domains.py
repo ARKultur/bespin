@@ -31,6 +31,22 @@ class NestedAddressSerializer(serializers.ModelSerializer):
         return Address.objects.get_or_create(**validated_data)
 
 
+    def update(self, instance, validated_data):
+        if 'owner' in validated_data:
+            nested_serializer = self.fields['owner']
+            nested_instance = instance.owner
+            nested_data = validated_data.pop('owner')
+            nested_serializer.update(nested_instance, nested_data)
+
+        if 'nodes' in validated_data:
+            nested_serializer = self.fields['nodes']
+            nested_instance = instance.nodes
+            nested_data = validated_data.pop('nodes')
+            nested_serializer.update(nested_instance, nested_data)
+
+        return super(NestedAddressSerializer, self).update(instance, validated_data)
+
+
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
@@ -49,3 +65,11 @@ class NestedNodeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['address'] = create_instance(Address, validated_data, 'address')
         return Node.objects.get_or_create(**validated_data)
+
+    def update(self, instance, validated_data):
+        if 'address' in validated_data:
+            nested_serializer = self.fields['address']
+            nested_instance = instance.address
+            nested_data = validated_data.pop('address')
+            nested_serializer.update(nested_instance, nested_data)
+        return super(NestedNodeSerializer, self).update(instance, validated_data)

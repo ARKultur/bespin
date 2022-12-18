@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from argon2 import PasswordHasher
 from api.models import *
 
 from api.serializers.utils import create_instance
@@ -23,10 +24,18 @@ class AuthSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            instance.set_password(value) if attr == 'password' else setattr(instance, attr, value)
-        instance.save()
-        return instance
+
+        if 'two_factor' in validated_data:
+            nested_serializer = self.fields['two_factor']
+            nested_instance = instance.two_factor
+            nested_data = validated_data.pop('two_factor')
+            nested_serializer.update(nested_instance, nested_data)
+
+        if 'password' in validated_data:
+            passwd = validated_data['password']
+            validated_data['password'] = PasswordHasher().hash(passwd)
+
+        return super(AuthSerializer, self).update(instance, validated_data)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -45,6 +54,14 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = '__all__'
 
+    def update(self, instance, validated_data):
+        if 'auth' in validated_data:
+            nested_serializer = self.fields['auth']
+            nested_instance = instance.auth
+            nested_data = validated_data.pop('auth')
+            nested_serializer.update(nested_instance, nested_data)
+        return super(CustomerSerializer, self).update(instance, validated_data)
+
     def create(self, validated_data):
         auth_data = validated_data.pop('auth')
         auth_data['role'] = 1
@@ -52,7 +69,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         auth_data['is_staff'] = False
         two_factor = create_instance(TwoFactorAuth, auth_data, 'two_factor')
         auth = Auth.objects.create(two_factor=two_factor, **auth_data)
-        return Admin.objects.create(auth=auth, **validated_data)
+        return Customer.objects.create(auth=auth, **validated_data)
 
 
 class AdminSerializer(serializers.ModelSerializer):
@@ -68,5 +85,13 @@ class AdminSerializer(serializers.ModelSerializer):
         auth_data['is_superuser'] = True
         auth_data['is_staff'] = True
         two_factor = create_instance(TwoFactorAuth, auth_data, 'two_factor')
-        auth = Auth.objects.create(two_factor=two_factor, **auth_data)
+        auth, created = Auth.objects.create(two_factor=two_factor, **auth_data)
         return Admin.objects.create(auth=auth, **validated_data)
+
+    def update(self, instance, validated_data):
+        if 'auth' in validated_data:
+            nested_serializer = self.fields['auth']
+            nested_instance = instance.auth
+            nested_data = validated_data.pop('auth')
+            nested_serializer.update(nested_instance, nested_data)
+        return super(AdminSerializer, self).update(instance, validated_data)

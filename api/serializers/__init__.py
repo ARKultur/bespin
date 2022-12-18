@@ -80,12 +80,12 @@ class AdminSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        auth_data = data.pop('auth')
+        auth_data = validated_data.pop('auth')
         auth_data['role'] = 2
         auth_data['is_superuser'] = True
         auth_data['is_staff'] = True
         two_factor = create_instance(TwoFactorAuth, auth_data, 'two_factor')
-        auth, created = Auth.objects.create(two_factor=two_factor, **auth_data)
+        auth = Auth.objects.create(two_factor=two_factor, **auth_data)
         return Admin.objects.create(auth=auth, **validated_data)
 
     def update(self, instance, validated_data):

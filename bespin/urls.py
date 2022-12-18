@@ -25,7 +25,6 @@ schema_view = get_schema_view(
 )
 
 router = routers.SimpleRouter(trailing_slash=False,)
-router.register(r'admin/domain', DomainViewset)
 router.register(r'node', NodeViewset)
 router.register(r'address', AddressViewset)
 router.register(r'admin', AdminViewset)

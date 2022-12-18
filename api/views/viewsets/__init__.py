@@ -21,7 +21,6 @@ from api.permissions import IsAdmin, IsOwner, IsCustomer, PostOnly
 - RegisterViewset: Customer creation route
 - CustomerViewset: Customer CRUD
 - AdminViewset: Admin CRUD
-- DomainViewset: Address class CRUD (+ nested customer & nodes)
 - NodeViewset: Node class CRUD
 - AddressViewset: Address class CRUD (no preloaded data)
 """
@@ -62,22 +61,15 @@ class AuthViewset(viewsets.ModelViewSet):
     serializer_class = AuthSerializer
 
 
-class DomainViewset(viewsets.ModelViewSet):
-    queryset = Address.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
-    authentication_classes = [TokenAuthentication]
-    serializer_class = NestedAddressSerializer
-
-
 class NodeViewset(viewsets.ModelViewSet):
     queryset = Node.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsCustomer | IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
     authentication_classes = [TokenAuthentication]
     serializer_class = NodeSerializer
 
 
 class AddressViewset(viewsets.ModelViewSet):
     queryset = Address.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsCustomer | IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
     authentication_classes = [TokenAuthentication]
     serializer_class = AddressSerializer

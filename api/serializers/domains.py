@@ -17,39 +17,6 @@ class NodeSerializer(serializers.ModelSerializer):
         fields = ['latitude', 'longitude', 'name', 'id', 'address']
 
 
-class NestedAddressSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Customer.objects.all())
-    nodes = NodeSerializer(source='node_set', many=True, read_only=True)
-
-    class Meta:
-        model = Address
-        fields = [
-            'nodes', 'owner', 'country', 'country_code', 'postcode',
-            'state', 'state_district', 'city', 'street', 'state_district',
-            'street_number'
-        ]
-
-    def create(self, validated_data):
-        validated_data['owner'] = create_instance(Customer, validated_data, 'owner')
-        return Address.objects.get_or_create(**validated_data)
-
-
-    def update(self, instance, validated_data):
-        if 'owner' in validated_data:
-            nested_serializer = self.fields['owner']
-            nested_instance = instance.owner
-            nested_data = validated_data.pop('owner')
-            nested_serializer.update(nested_instance, nested_data)
-
-        if 'nodes' in validated_data:
-            nested_serializer = self.fields['nodes']
-            nested_instance = instance.nodes
-            nested_data = validated_data.pop('nodes')
-            nested_serializer.update(nested_instance, nested_data)
-
-        return super(NestedAddressSerializer, self).update(instance, validated_data)
-
-
 class AddressSerializer(serializers.ModelSerializer):
     owner = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Customer.objects.all())
 

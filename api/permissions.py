@@ -2,6 +2,9 @@ from rest_framework import permissions
 
 import logging
 
+from api.models import Auth, Customer, Admin, TwoFactorAuth
+from api.models.domains import Address, Node
+
 """this module stores the various authorization middlewares used throughout the project
 
 (user should already be authenticated when going through these)

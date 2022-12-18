@@ -39,4 +39,4 @@ class Node(models.Model):
     name = models.CharField(max_length=64)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, editable=False)

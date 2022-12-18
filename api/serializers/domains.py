@@ -10,13 +10,15 @@ from api.models import Customer
 
 
 class NodeSerializer(serializers.ModelSerializer):
+    address = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Address.objects.all())
+
     class Meta:
         model = Node
-        fields = ['latitude', 'longitude', 'name']
+        fields = ['latitude', 'longitude', 'name', 'id', 'address']
 
 
 class NestedAddressSerializer(serializers.ModelSerializer):
-    owner = CustomerSerializer(many=False, read_only=False)
+    owner = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Customer.objects.all())
     nodes = NodeSerializer(source='node_set', many=True, read_only=True)
 
     class Meta:

@@ -270,3 +270,70 @@ class AddressCRUDTestCase(TransactionTestCase):
         id = resp.data['id']
         resp = self.client.delete(f'/address/{id}', format='json')
         self.assertEqual(resp.status_code, 204)
+
+class NodeCrudTestCase(TransactionTestCase):
+    def setUp(self) -> None:
+        self.user = create_random_customer()
+        self.client = APIClient()
+        self.auth_token = login_as(self.user.auth.email, random_user_password())
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.auth_token}')
+        creation_data = {
+            'owner': self.user.id,
+            'country': 'France',
+            'country_code': 'FR',
+            'postcode': '75007',
+            'state': 'Seine',
+            'state_district': 'whatever',
+            'city': 'Paris',
+            'street': 'Av. Anatole France',
+            'street_number': 5
+        }
+        resp = self.client.post('/address', format='json', data=creation_data)
+        self.addr_id = resp.data['id']
+
+    def tearDown(self) -> None:
+        self.user.delete()
+
+    def test_create_a_node(self):
+        creation_data = {
+            'address': self.addr_id,
+            'name': 'eiffel tower',
+            'latitude': 48.8584,
+            'longitude': 2.2945
+        }
+        resp = self.client.post('/node', format='json', data=creation_data)
+        self.assertEqual(resp.status_code, 201)
+
+    def test_update_a_node(self):
+        creation_data = {
+            'address': self.addr_id,
+            'name': 'eiffel tower',
+            'latitude': 48.8584,
+            'longitude': 2.2945
+        }
+        resp = self.client.post('/node', format='json', data=creation_data)
+        self.assertEqual(resp.status_code, 201)
+
+        id = resp.data['id']
+        update_data = {
+            'address': self.addr_id,
+            'name': 'eiffel tower',
+            'longitude': 48.8584,
+            'latitude': 2.2945
+        }
+        resp = self.client.patch(f'/node/{id}', format='json', data=update_data)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_delete_a_node(self):
+        creation_data = {
+            'address': self.addr_id,
+            'name': 'eiffel tower',
+            'latitude': 48.8584,
+            'longitude': 2.2945
+        }
+        resp = self.client.post('/node', format='json', data=creation_data)
+        self.assertEqual(resp.status_code, 201)
+        id = resp.data['id']
+
+        resp = self.client.delete(f'/node/{id}', format='json')
+        self.assertEqual(resp.status_code, 204)

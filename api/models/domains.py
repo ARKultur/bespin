@@ -27,7 +27,7 @@ class Address(models.Model):
     city = models.CharField(max_length=64)
     street = models.CharField(max_length=64)
     street_number = models.PositiveIntegerField()
-    owner = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Customer, on_delete=models.CASCADE, editable=False)
 
 
 class Node(models.Model):

@@ -25,13 +25,11 @@ schema_view = get_schema_view(
 )
 
 router = routers.SimpleRouter(trailing_slash=False,)
-router.register(r'auth', AuthViewset)
-router.register(r'domain', DomainViewset)
+router.register(r'admin/domain', DomainViewset)
 router.register(r'node', NodeViewset)
 router.register(r'address', AddressViewset)
 router.register(r'admin', AdminViewset)
 router.register(r'customer', CustomerViewset)
-router.register(r'2fa', TwoFactorViewset)
 
 urlpatterns = [
     path('login', LoginView.as_view()),

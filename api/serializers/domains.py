@@ -23,7 +23,8 @@ class NestedAddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = [
             'nodes', 'owner', 'country', 'country_code', 'postcode',
-            'state', 'state_district', 'city', 'street', 'state_district'
+            'state', 'state_district', 'city', 'street', 'state_district',
+            'street_number'
         ]
 
     def create(self, validated_data):
@@ -48,11 +49,13 @@ class NestedAddressSerializer(serializers.ModelSerializer):
 
 
 class AddressSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Customer.objects.all())
+
     class Meta:
         model = Address
         fields = [
             'country', 'country_code', 'postcode', 'state', 'state_district',
-            'city', 'street', 'state_district'
+            'city', 'street', 'state_district', 'street_number', 'owner', 'id'
         ]
 
 class NestedNodeSerializer(serializers.ModelSerializer):

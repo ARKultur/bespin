@@ -12,7 +12,7 @@ from rest_framework.status import (
 from api.serializers import *
 from api.serializers.domains import *
 
-from api.permissions import IsAdmin, IsOwner, PostOnly
+from api.permissions import IsAdmin, IsOwner, IsCustomer, PostOnly
 
 """This module stores the generic viewsets used when basic CRUD is required
 
@@ -50,7 +50,7 @@ class CustomerViewset(viewsets.ModelViewSet):
 
 class AdminViewset(viewsets.ModelViewSet):
     queryset = Admin.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin]
     authentication_classes = [TokenAuthentication]
     serializer_class = AdminSerializer
 
@@ -71,13 +71,13 @@ class DomainViewset(viewsets.ModelViewSet):
 
 class NodeViewset(viewsets.ModelViewSet):
     queryset = Node.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsCustomer | IsOwner]
     authentication_classes = [TokenAuthentication]
     serializer_class = NodeSerializer
 
 
 class AddressViewset(viewsets.ModelViewSet):
     queryset = Address.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsCustomer | IsOwner]
     authentication_classes = [TokenAuthentication]
     serializer_class = AddressSerializer

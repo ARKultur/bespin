@@ -3,10 +3,13 @@ from typing import List, Any
 """ This module is made of utility function used to build serializers
 """
 
-def create_instance(Class: Any, data: dict[str, str], object_name: str) -> Any:
+def create_instance(Class: Any, data: dict[str, str], object_name: str, or_get: bool = False) -> Any:
     """create a single instance of a Class from an object, using a serializers's validated_data"""
     object_data = data.pop(object_name)
-    created_object = Class.objects.create(**object_data)
+    if or_get:
+        created_object, create = Class.objects.get_or_create(**object_data)
+    else:
+        created_object = Class.objects.create(**object_data)
     return created_object
 
 

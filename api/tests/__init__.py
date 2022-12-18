@@ -195,102 +195,78 @@ class CrudCustomerTestCase(TransactionTestCase):
         self.assertEqual(resp.status_code, 204)
 
 
-class CrudAdminTestCase(TransactionTestCase):
+class AddressCRUDTestCase(TransactionTestCase):
     def setUp(self) -> None:
-        self.admin = create_random_admin()
+        self.user = create_random_customer()
         self.client = APIClient()
-        self.auth_token = login_as(self.admin.auth.email, random_user_password())
+        self.auth_token = login_as(self.user.auth.email, random_user_password())
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.auth_token}')
 
     def tearDown(self) -> None:
-        response = self.client.get(f'/logout')
-        self.assertEqual(response.status_code, 200)
-        self.admin.delete()
+        self.user.delete()
 
-    def test_create_a_admin(self):
-        fake = Faker()
-        name = fake.name()
+    def test_create_an_address(self):
         creation_data = {
-          "auth": {
-            "username": name.split(' ')[0],
-            "email": fake.email(),
-            "first_name": name.split(' ')[0],
-            "last_name": name.split(' ')[1],
-            "two_factor": {
-              "enabled": True,
-              "method": 1
-            },
-            "password": random_user_password()
-          },
-          "creation_date": "2022-12-17T21:36:37.402Z"
+            'owner': self.user.id,
+            'country': 'France',
+            'country_code': 'FR',
+            'postcode': '75007',
+            'state': 'Seine',
+            'state_district': 'whatever',
+            'city': 'Paris',
+            'street': 'Av. Anatole France',
+            'street_number': 5
         }
-        resp = self.client.post('/admin', format='json', data=creation_data)
+        resp = self.client.post('/address', format='json', data=creation_data)
         self.assertEqual(resp.status_code, 201)
 
 
-    def test_update_a_admin(self):
-        fake = Faker()
-        name = fake.name()
+    def test_update_an_address(self):
         creation_data = {
-          "auth": {
-            "username": name.split(' ')[0],
-            "email": fake.email(),
-            "first_name": name.split(' ')[0],
-            "last_name": name.split(' ')[1],
-            "two_factor": {
-              "enabled": True,
-              "method": 1
-            },
-            "password": random_user_password()
-          },
-          "creation_date": "2022-12-17T21:36:37.402Z"
+            'owner': self.user.id,
+            'country': 'France',
+            'country_code': 'FR',
+            'postcode': '75007',
+            'state': 'Seine',
+            'state_district': 'whatever',
+            'city': 'Paris',
+            'street': 'Av. Anatole France',
+            'street_number': 5
+
         }
-        resp = self.client.post('/admin', format='json', data=creation_data)
+        resp = self.client.post('/address', format='json', data=creation_data)
         self.assertEqual(resp.status_code, 201)
-        name = fake.name()
+
+        id = resp.data['id']
         update_data = {
-            "auth": {
-                "username": name.split(' ')[0],
-                "email": fake.email(),
-                "first_name": name.split(' ')[0],
-                "last_name": name.split(' ')[1],
-                "role": 1,
-                "two_factor": {
-                  "enabled": False,
-                  "method": 1
-                },
-                "password": random_user_password()
-          },
-          "creation_date": "2022-12-17T21:36:37.402Z"
+            'owner': self.user.id,
+            'country': 'France',
+            'country_code': 'FR',
+            'postcode': '75007',
+            'state': 'Seine',
+            'state_district': 'cool stuff',
+            'city': 'Paris',
+            'street': 'Av. Anatole France',
+            'street_number': 5
         }
-
-        id = resp.data["id"]
-        resp = self.client.get(f'/admin/{id}', format='json')
+        resp = self.client.patch(f'/address/{id}', format='json', data=update_data)
         self.assertEqual(resp.status_code, 200)
 
-        resp = self.client.patch(f'/admin/{id}', format='json', data=update_data)
-        self.assertEqual(resp.status_code, 200)
-
-    def test_delete_a_admin(self):
-        fake = Faker()
-        name = fake.name()
+    def test_delete_an_address(self):
         creation_data = {
-          "auth": {
-            "username": name.split(' ')[0],
-            "email": fake.email(),
-            "first_name": name.split(' ')[0],
-            "last_name": name.split(' ')[1],
-            "two_factor": {
-              "enabled": True,
-              "method": 1
-            },
-            "password": random_user_password()
-          },
-          "creation_date": "2022-12-17T21:36:37.402Z"
+            'owner': self.user.id,
+            'country': 'France',
+            'country_code': 'FR',
+            'postcode': '75007',
+            'state': 'Seine',
+            'state_district': 'whatever',
+            'city': 'Paris',
+            'street': 'Av. Anatole France',
+            'street_number': 5
         }
-        resp = self.client.post('/admin', format='json', data=creation_data)
+        resp = self.client.post('/address', format='json', data=creation_data)
         self.assertEqual(resp.status_code, 201)
 
-        id = resp.data["id"]
-        resp = self.client.delete(f'/admin/{id}', format='json')
+        id = resp.data['id']
+        resp = self.client.delete(f'/address/{id}', format='json')
         self.assertEqual(resp.status_code, 204)

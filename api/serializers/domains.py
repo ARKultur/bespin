@@ -35,7 +35,7 @@ class NestedNodeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        validated_data['address'] = create_instance(Address, validated_data, 'address')
+        validated_data['address'] = create_instance(AddressSerializer, validated_data, 'address')
         return Node.objects.get_or_create(**validated_data)
 
     def update(self, instance, validated_data):

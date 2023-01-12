@@ -30,8 +30,6 @@ def create_user(
         UserClass,
         is_admin: bool = False,
     ):
-    two_fa = TwoFactorAuth(method=1)
-    two_fa.save()
 
     auth = Auth(
         role=2 if is_admin else 1,
@@ -42,7 +40,6 @@ def create_user(
         last_name=last_name,
         is_active=True,
         password=password,
-        two_factor=two_fa
     )
     auth.set_password(password)
     auth.save()

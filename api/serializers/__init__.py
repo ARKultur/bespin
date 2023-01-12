@@ -7,30 +7,15 @@ from api.serializers.utils import create_instance
 """This module stores all the basic serializers for user & authentication management"""
 
 
-class TwoFactorAuthSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TwoFactorAuth
-        fields = '__all__'
-
-
 class AuthSerializer(serializers.ModelSerializer):
-    two_factor = TwoFactorAuthSerializer(many=False, read_only=False)
-
     class Meta:
         model = Auth
         fields = [
             'username', 'email', 'first_name', 'last_name',
-            'last_login', 'two_factor', 'date_joined', 'password'
+            'last_login', 'date_joined', 'password'
         ]
 
     def update(self, instance, validated_data):
-
-        if 'two_factor' in validated_data:
-            nested_serializer = self.fields['two_factor']
-            nested_instance = instance.two_factor
-            nested_data = validated_data.pop('two_factor')
-            nested_serializer.update(nested_instance, nested_data)
-
         if 'password' in validated_data:
             passwd = validated_data['password']
             validated_data['password'] = PasswordHasher().hash(passwd)
@@ -43,8 +28,12 @@ class AuthSerializer(serializers.ModelSerializer):
         return representation
 
     def create(self, validated_data):
-        two_factor = create_instance(TwoFactorAuth, validated_data, 'two_factor')
-        return Auth.objects.get_or_create(two_factor=two_factor, **validated_data)
+        if 'password' in validated_data:
+            passwd = validated_data['password']
+            validated_data.pop('password')
+            validated_data['password'] = PasswordHasher().hash(passwd)
+
+        return Auth.objects.create(**validated_data)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -63,12 +52,11 @@ class CustomerSerializer(serializers.ModelSerializer):
         return super(CustomerSerializer, self).update(instance, validated_data)
 
     def create(self, validated_data):
-        auth_data = validated_data.pop('auth')
+        auth_data = validated_data.get('auth')
         auth_data['role'] = 1
         auth_data['is_superuser'] = False
         auth_data['is_staff'] = False
-        two_factor = create_instance(TwoFactorAuth, auth_data, 'two_factor')
-        auth = Auth.objects.create(two_factor=two_factor, **auth_data)
+        auth = create_instance(AuthSerializer, validated_data, 'auth')
         return Customer.objects.create(auth=auth, **validated_data)
 
 
@@ -80,12 +68,11 @@ class AdminSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        auth_data = validated_data.pop('auth')
+        auth_data = validated_data.get('auth')
         auth_data['role'] = 2
         auth_data['is_superuser'] = True
         auth_data['is_staff'] = True
-        two_factor = create_instance(TwoFactorAuth, auth_data, 'two_factor')
-        auth = Auth.objects.create(two_factor=two_factor, **auth_data)
+        auth = create_instance(AuthSerializer, validated_data, 'auth')
         return Admin.objects.create(auth=auth, **validated_data)
 
     def update(self, instance, validated_data):

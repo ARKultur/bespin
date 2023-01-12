@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 
-from rest_framework import permissions
+from rest_framework import permissions, generics
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -15,16 +15,20 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST
     )
 
+import pyotp
+
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
 from api.backends import EmailBackend
 from api.permissions import *
+from api.serializers import *
 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+
 
     @swagger_auto_schema(
         operation_description="Logs in account",
@@ -82,7 +86,7 @@ class LogoutView(APIView):
             properties={
             },
         ),
-        security=[permissions.IsAuthenticated],
+        security=['Bearer'],
         tags=['Logout'],
     )
 

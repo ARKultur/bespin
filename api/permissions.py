@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 import logging
 
-from api.models import Auth, Customer, Admin, TwoFactorAuth
+from api.models import Auth, Customer, Admin
 from api.models.domains import Address, Node
 
 """this module stores the various authorization middlewares used throughout the project
@@ -39,7 +39,7 @@ class IsOwner(permissions.BasePermission):
         if isinstance(obj, Auth):
             return obj.id == request.user.id
 
-        if isinstance(obj, (Customer, Admin, TwoFactorAuth)):
+        if isinstance(obj, (Customer, Admin)):
             return obj.auth.id == request.user.id
 
         if isinstance(obj, Address):

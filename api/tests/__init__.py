@@ -74,10 +74,6 @@ class RegisterTestCase(TransactionTestCase):
             "email": fake.email(),
             "first_name": name.split(' ')[0],
             "last_name": name.split(' ')[1],
-            "two_factor": {
-              "enabled": True,
-              "method": 1
-            },
             "password": random_user_password()
           },
           "creation_date": "2022-12-17T21:36:37.402Z"
@@ -115,10 +111,6 @@ class CrudCustomerTestCase(TransactionTestCase):
             "email": fake.email(),
             "first_name": name.split(' ')[0],
             "last_name": name.split(' ')[1],
-            "two_factor": {
-              "enabled": True,
-              "method": 1
-            },
             "password": random_user_password()
           },
           "creation_date": "2022-12-17T21:36:37.402Z"
@@ -136,10 +128,6 @@ class CrudCustomerTestCase(TransactionTestCase):
             "email": fake.email(),
             "first_name": name.split(' ')[0],
             "last_name": name.split(' ')[1],
-            "two_factor": {
-              "enabled": True,
-              "method": 1
-            },
             "password": random_user_password()
           },
           "creation_date": "2022-12-17T21:36:37.402Z"
@@ -154,10 +142,6 @@ class CrudCustomerTestCase(TransactionTestCase):
                 "first_name": name.split(' ')[0],
                 "last_name": name.split(' ')[1],
                 "role": 1,
-                "two_factor": {
-                  "enabled": False,
-                  "method": 1
-                },
                 "password": random_user_password()
           },
           "creation_date": "2022-12-17T21:36:37.402Z"
@@ -179,10 +163,6 @@ class CrudCustomerTestCase(TransactionTestCase):
             "email": fake.email(),
             "first_name": name.split(' ')[0],
             "last_name": name.split(' ')[1],
-            "two_factor": {
-              "enabled": True,
-              "method": 1
-            },
             "password": random_user_password()
           },
           "creation_date": "2022-12-17T21:36:37.402Z"

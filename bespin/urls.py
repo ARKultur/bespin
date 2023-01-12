@@ -2,6 +2,8 @@ from rest_framework import routers
 from rest_framework.urls import path
 from django.urls import re_path
 
+from django.conf.urls import include
+
 from api.views import *
 from api.views.viewsets import *
 
@@ -36,4 +38,6 @@ urlpatterns = [
     path('ping', PingView.as_view()),
     path('register', RegisterViewset.as_view({'post': 'create'})),
     re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    re_path(r'^auth/', include('trench.urls')),
+    re_path(r'^auth/', include('trench.urls.authtoken')),
 ] + router.urls

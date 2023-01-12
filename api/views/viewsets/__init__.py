@@ -16,7 +16,6 @@ from api.permissions import IsAdmin, IsOwner, IsCustomer, PostOnly
 
 """This module stores the generic viewsets used when basic CRUD is required
 
-- TwoFactorViewset: 2FA class CRUD
 - AuthViewset: Auth class CRUD
 - RegisterViewset: Customer creation route
 - CustomerViewset: Customer CRUD
@@ -24,13 +23,6 @@ from api.permissions import IsAdmin, IsOwner, IsCustomer, PostOnly
 - NodeViewset: Node class CRUD
 - AddressViewset: Address class CRUD (no preloaded data)
 """
-
-
-class TwoFactorViewset(viewsets.ModelViewSet):
-    queryset = TwoFactorAuth.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
-    authentication_classes = [TokenAuthentication]
-    serializer_class = TwoFactorAuthSerializer
 
 
 class RegisterViewset(viewsets.ModelViewSet):

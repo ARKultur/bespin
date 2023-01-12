@@ -27,9 +27,11 @@ and then run it as you would normally for a Python.
 > In our case, we use it to specify the Python version, which is currently `3.10.8`
 
 Install setup:
+
 <details>
 
 ```bash
+
 # go to the project root directory
 cd Bespin
 
@@ -59,6 +61,7 @@ python manage.py migrate
 # or, if you wish to interact with the models directly:
 python manage.py shell
 ```
+
 </details>
 
 ### ✨ As a project user
@@ -72,13 +75,17 @@ If you're just planning on _using_ the API, but not develop on it, you can easil
 3. Run the following, once you have tested that your install works:
 
 <details>
+
 ```bash
+
 # build the image
 docker build . -t bespin
 
 # run on port 8080 (assuming postgresql daemon is running and migrations have been done)
 docker run -p "8080:8080" bespin
+
 ```
+
 </details>
 
 ---
@@ -96,8 +103,8 @@ You then get a `Token` you can use as a `Bearer <Token>` in the `Authorization` 
 
 -> Three methods should be supported by this project:
  - [x] Authenticator app
- - [ ] Email 2FA
- - [ ] Phone number 2FA
+ - [x] Email 2FA
+ - [x] Phone number 2FA
 
 </details>
 
@@ -110,9 +117,6 @@ To run tests, just do
 ```bash
 # enable virtualenv
 . ~/.local/venv_bespin/bin/activate
-
-# this is needed to tell DRF which database it should use
-export TEST=1
 
 # assuming postgresql service is already running in the background
 python manage.py test
@@ -135,7 +139,3 @@ This can then be important in the REST client of your choice, we recommend:
 - [HTTPie](https://httpie.io/docs/cli) -- works in the Terminal, but currently cannot import OpenAPI specs.
 
 ---
-
-## 🧨 Known issues
-
-- Phone number 2FA is not implemented yet :(

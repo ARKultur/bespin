@@ -28,12 +28,14 @@ class Auth(AbstractUser):
         (2, 'admin'),
     )
 
+    id = models.AutoField(primary_key=True)
     role = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, editable=False)
-    email = models.CharField(max_length=64, unique=True)
     password = models.CharField(max_length=128)
     phone_number = PhoneNumberField(null=True, blank=True)
 
-    def set_password(self, raw_password=None):
+    def set_password(self, raw_password: str | None = None):
+        if not raw_password:
+            return
         hashed = PasswordHasher().hash(raw_password)
         self.password = hashed
 
@@ -47,6 +49,7 @@ class Admin(models.Model):
         verbose_name_plural = 'Administrators'
         ordering = ['creation_date']
 
+    id = models.AutoField(primary_key=True)
     auth = models.OneToOneField(Auth, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now=True, editable=False)
 
@@ -57,5 +60,6 @@ class Customer(models.Model):
         verbose_name_plural = 'Customers'
         ordering = ['creation_date']
 
+    id = models.AutoField(primary_key=True)
     auth = models.OneToOneField(Auth, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now=True, editable=False)

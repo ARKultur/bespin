@@ -1,14 +1,14 @@
-from rest_framework import permissions
-
-import logging
-
-from api.models import Auth, Customer, Admin
-from api.models.domains import Address, Node
-
 """this module stores the various authorization middlewares used throughout the project
 
 (user should already be authenticated when going through these)
 """
+
+import logging
+
+from rest_framework import permissions
+from api.models import Auth, Customer, Admin
+from api.models.domains import Address, Node
+
 
 class MethodOnly(permissions.BasePermission):
     SAFE_METHODS = []
@@ -37,16 +37,16 @@ class IsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Auth):
-            return obj.id == request.user.id
+            return obj.id == request.user.id # type: ignore
 
         if isinstance(obj, (Customer, Admin)):
-            return obj.auth.id == request.user.id
+            return obj.auth.id == request.user.id # type: ignore
 
         if isinstance(obj, Address):
-            return obj.owner.auth.id == request.user.id
+            return obj.owner.auth.id == request.user.id # type: ignore
 
         if isinstance(obj, Node):
-            return obj.address.owner.auth.id == request.user.id
+            return obj.address.owner.auth.id == request.user.id # type: ignore
 
         logging.getLogger(__name__).warn(f'IsOwner permissions: {type(obj)} did not reach anything')
         return False

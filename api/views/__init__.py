@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 
-from rest_framework import permissions, generics
+from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -15,14 +15,13 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST
     )
 
-import pyotp
-
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
 from api.backends import EmailBackend
 from api.permissions import *
 from api.serializers import *
+from api.models import *
 
 
 class LoginView(APIView):
@@ -55,7 +54,7 @@ class LoginView(APIView):
             }, status=HTTP_400_BAD_REQUEST)
 
         email = email.lower()
-        account = EmailBackend().get_user_by_email(email)
+        account = Auth.objects.filter(email=email).first()
         if not account:
             return Response({
                 'error': 'no such account',

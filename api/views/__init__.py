@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List, Optional, Type
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
@@ -23,6 +23,58 @@ from api.backends import EmailBackend
 from api.permissions import *
 from api.serializers import *
 from api.models import *
+
+
+class ResetPasswordView(APIView):
+    permissions_class: List[Type[TokenAuthentication]] = []
+    authentication_classes: List[Type[AllowAny]] = []
+
+    @staticmethod
+    def post(request):
+        """
+            Saves new password by matching the reset_password_token, then updating the password field.
+        """
+        token: Optional[str] = request.data.get('token', None)
+        new_pass: Optional[str] = request.data.get('password', None)
+        user: Optional[Auth] = Auth.objects.filter(tmp_token=token).first() if token else None
+
+        if not user or not token or not new_pass:
+            return Response({
+                    'error': 'could not find account',
+                }, status=HTTP_404_NOT_FOUND)
+        else:
+            success_msg: str = 'password changed. please log in'
+            user.set_password(new_pass)
+            user.save()
+
+            return Response({
+                    'message': success_msg,
+            }, status=HTTP_200_OK)
+
+    @staticmethod
+    def put(request):
+        """
+            Sends an email to reset the account's password
+        """
+
+        email: Optional[str]  = request.data.get('email')
+        account: Optional[Auth] = Auth.objects.filter(email=email).first() if email is not None else None
+
+        if email is None:
+            return Response({
+                'error': 'bad request',
+            }, status=HTTP_400_BAD_REQUEST)
+
+        elif account is None:
+            return Response({
+                'error': 'no such account. please register',
+            }, status=HTTP_404_NOT_FOUND)
+
+        else:
+            account.send_reset_password_email()
+            return Response({
+                'message': 'email has been sent',
+            }, status=HTTP_200_OK)
 
 
 class ConfirmAccountView(APIView):

@@ -4,12 +4,13 @@ from django.urls import re_path
 
 from django.conf.urls import include
 
-from api.views import *
-from api.views.viewsets import *
-
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
+from api.views import *
+from api.views.viewsets import *
+
 
 """Module responsible for storing API routes & OpenAPI config"""
 
@@ -36,6 +37,8 @@ urlpatterns = [
     path('login', LoginView.as_view()),
     path('logout', LogoutView.as_view()),
     path('ping', PingView.as_view()),
+    path('confirm', ConfirmAccountView.as_view()),
+    patu('reset', ResetPasswordView.as_view()),
     path('register', RegisterViewset.as_view({'post': 'create'})),
     re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     re_path(r'^auth/', include('trench.urls')),

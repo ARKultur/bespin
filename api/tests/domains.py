@@ -1,22 +1,14 @@
-import os
-import logging
-from datetime import datetime
+from django.test import TransactionTestCase
+from rest_framework.response import Response
+from rest_framework.test import  APIClient
 
-from faker import Faker
-
-from django.conf import settings
-from django.db import transaction
-from django.db.transaction import TransactionManagementError
-from django.test import TransactionTestCase, TestCase
-from rest_framework.test import APIRequestFactory, force_authenticate, APIClient
-
-from api.tests.helpers import create_random_customer, create_random_admin, random_user_password, login_as
+from api.tests.helpers import create_random_customer, random_user_password, login_as
 
 
 class DomainCRUDTestCase(TransactionTestCase):
     def setUp(self) -> None:
         self.user = create_random_customer()
-        self.client = APIClient()
+        self.client: APIClient = APIClient()
         self.auth_token = login_as(self.user.auth.email, random_user_password())
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.auth_token}')
 
@@ -33,7 +25,7 @@ class DomainCRUDTestCase(TransactionTestCase):
             'city': 'Paris',
             'street': '5 Av. Anatole France'
         }
-        resp = self.client.post('/address', format='json', data=creation_data)
+        resp: Response = self.client.post('/address', format='json', data=creation_data)
         self.assertEqual(resp.status_code, 201)
 
 
@@ -47,7 +39,7 @@ class DomainCRUDTestCase(TransactionTestCase):
             'city': 'Paris',
             'street': '5 Av. Anatole France'
         }
-        resp = self.client.post('/address', format='json', data=creation_data)
+        resp: Response = self.client.post('/address', format='json', data=creation_data)
         self.assertEqual(resp.status_code, 201)
 
         id = resp.data['id']

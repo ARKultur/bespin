@@ -1,8 +1,8 @@
 from django.db import models
-from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from argon2 import PasswordHasher
 from phonenumber_field.modelfields import PhoneNumberField
+from django.core.mail import send_mail
 
 
 """This module manages generic models required for users & authentication
@@ -33,6 +33,11 @@ class Auth(AbstractUser):
     password = models.CharField(max_length=128)
     phone_number = PhoneNumberField(null=True, blank=True)
 
+    # account confirmation / password reset stuff
+    # TODO: have a different token for password reset & account confirmation
+    tmp_token = models.CharField(max_length=32, null=True, default=None)
+    is_disabled = models.BooleanField(default=False)
+
     def set_password(self, raw_password: str | None = None):
         if not raw_password:
             return
@@ -41,6 +46,27 @@ class Auth(AbstractUser):
 
     def check_password(self, raw_password=None) -> bool:
         return PasswordHasher().verify(self.password, raw_password) if raw_password else False
+
+
+    def send_confirm_email(self) -> int:
+        url = f'https://arkultur.creative-rift.com/confirm?token={self.tmp_token}'
+        return send_mail(
+            f'Welcome {self.first_name} !',
+            f'Hello and welcome!\nPlease click on the following link to confirm your account:{url}',
+            'noreply@arkultur.creative-rift.com',
+            [self.email],
+            fail_silently=False,
+        )
+
+    def send_reset_password_email(self) -> int:
+        url = f'https://arkultur.creative-rift.com/reset?token={self.tmp_token}'
+        return send_mail(
+            f'{self.first_name}, reset your password',
+            f'Please click on the following link to reset your password:{url}',
+            'noreply@arkultur.creative-rift.com',
+            [self.email],
+            fail_silently=False,
+        )
 
 
 class Admin(models.Model):

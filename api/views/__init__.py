@@ -1,4 +1,5 @@
-from django.contrib.auth import authenticate
+from typing import List, Type
+from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import permissions
@@ -17,17 +18,94 @@ from rest_framework.status import (
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-
 from api.backends import EmailBackend
+
 from api.permissions import *
 from api.serializers import *
 from api.models import *
 
 
+class ConfirmAccountView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes: List[Type[TokenAuthentication]]= []
+
+    @staticmethod
+    def put(request):
+        """
+            Requests a (new) confirmation email. Expects an email field.
+        """
+
+        email = request.GET.get('email')
+        if email is None:
+            return Response({
+                'error': 'no email provided',
+            }, status=HTTP_400_BAD_REQUEST)
+
+        email = email.lower()
+        user = Auth.objects.filter(email=email).first()
+        if user:
+            if user.is_disabled:
+                user.tmp_token = None
+                user.send_confirm_email()
+                user.save()
+                return Response({
+                    'message': 'success',
+                    'id': user.id
+                }, status=HTTP_200_OK)
+            else:
+                return Response({
+                    'error': 'account is not locked and has already confirmed',
+                }, status=HTTP_403_FORBIDDEN)
+        else:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+
+    @staticmethod
+    def post(request):
+        """
+            Activates an account if it is not already activated.
+            Also provides log-in token to the user because it's annoying
+            to connect after validating its email.
+        """
+
+        token = request.GET.get('token')
+        password = request.data.get("password")
+
+        if token is None:
+            return Response({
+                'error': 'no token has been provided',
+            }, status=HTTP_400_BAD_REQUEST)
+
+        if password is None:
+            return Response({
+                'error': 'no password provided',
+            }, status=HTTP_400_BAD_REQUEST)
+
+        account = Auth.objects.filter(confirm_token=token).first()
+        if account:
+            account.tmp_token = None
+            account.is_disabled = False
+            account.set_password(password)
+            account.save()
+
+            authenticated_account = EmailBackend().get_user(account.id)
+            token, _ = Token.objects.get_or_create(user=authenticated_account)
+            login(request, authenticated_account)
+
+            return Response({
+                'token': token.key,
+                'id': account.id,
+            }, status=HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'no account has been found'
+            }, status=HTTP_404_NOT_FOUND)
+
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
-    authentication_classes = []
-
+    authentication_classes: List[Type[TokenAuthentication]]= []
 
     @swagger_auto_schema(
         operation_description="Logs in account",

@@ -1,8 +1,11 @@
 """This module stores the authentication backend"""
 
+from typing import Optional
 import argon2.exceptions
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractBaseUser
+
+from api.models import Auth
 
 
 class EmailBackend(ModelBackend):
@@ -12,17 +15,15 @@ class EmailBackend(ModelBackend):
     supports_anonymous_user = False
     supports_inactive_user = False
 
-    def get_user_by_email(self, email):
-        model = get_user_model()
-        return model.objects.filter(email=email).first()
+    def get_user_by_email(self, email) -> Optional[AbstractBaseUser]:
+        return Auth.objects.filter(email=email).first()
 
-    def get_user(self, user_id):
-        model = get_user_model()
-        return model.objects.filter(pk=user_id).first()
+    def get_user(self, user_id) -> Optional[AbstractBaseUser]:
+        return Auth.objects.filter(pk=user_id).first()
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
             user = self.get_user_by_email(email=username)
-            return user if user and user.check_password(password) else None
+            return user if user and password and user.check_password(password) else None
         except argon2.exceptions.VerifyMismatchError:
             return None

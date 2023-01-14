@@ -38,7 +38,7 @@ urlpatterns = [
     path('logout', LogoutView.as_view()),
     path('ping', PingView.as_view()),
     path('confirm', ConfirmAccountView.as_view()),
-    patu('reset', ResetPasswordView.as_view()),
+    path('reset', ResetPasswordView.as_view()),
     path('register', RegisterViewset.as_view({'post': 'create'})),
     re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     re_path(r'^auth/', include('trench.urls')),

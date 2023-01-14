@@ -29,12 +29,32 @@ class ResetPasswordView(APIView):
     permissions_class: List[Type[TokenAuthentication]] = []
     authentication_classes: List[Type[AllowAny]] = []
 
-    @staticmethod
-    def post(request):
+    @swagger_auto_schema(
+        operation_description="sets new password",
+        manual_parameters=[
+            openapi.Parameter(name="token",
+                required=True,
+                type="string",
+                in_="path",
+                description="account confirmation token",
+            ),
+        ],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['password'],
+            properties={
+                'password': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        security=[],
+        tags=['ResetPassword'],
+    )
+    def post(self, request):
         """
-            Saves new password by matching the reset_password_token, then updating the password field.
+            Saves new password by matching the reset_password_token,
+            then updating the password field.
         """
-        token: Optional[str] = request.data.get('token', None)
+        token: Optional[str] = request.query_params.get('token', None)
         new_pass: Optional[str] = request.data.get('password', None)
         user: Optional[Auth] = Auth.objects.filter(tmp_token=token).first() if token else None
 
@@ -51,8 +71,19 @@ class ResetPasswordView(APIView):
                     'message': success_msg,
             }, status=HTTP_200_OK)
 
-    @staticmethod
-    def put(request):
+    @swagger_auto_schema(
+        operation_description="sends email to reset account's password",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email'],
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        security=[],
+        tags=['ResetPassword'],
+    )
+    def put(self, request):
         """
             Sends an email to reset the account's password
         """
@@ -81,8 +112,19 @@ class ConfirmAccountView(APIView):
     permission_classes = [AllowAny]
     authentication_classes: List[Type[TokenAuthentication]]= []
 
-    @staticmethod
-    def put(request):
+    @swagger_auto_schema(
+        operation_description="requests account confirmation (or re-requests it)",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email'],
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        security=[],
+        tags=['Confirm'],
+    )
+    def put(self, request):
         """
             Requests a (new) confirmation email. Expects an email field.
         """
@@ -104,23 +146,41 @@ class ConfirmAccountView(APIView):
                     'message': 'success',
                     'id': user.id
                 }, status=HTTP_200_OK)
-            else:
-                return Response({
-                    'error': 'account is not locked and has already confirmed',
-                }, status=HTTP_403_FORBIDDEN)
+            return Response({
+                'error': 'account is not locked and has already confirmed',
+            }, status=HTTP_403_FORBIDDEN)
         else:
             return Response(status=HTTP_404_NOT_FOUND)
 
 
-    @staticmethod
-    def post(request):
+    @swagger_auto_schema(
+        operation_description="confirms account using a token and sets new password",
+        manual_parameters=[
+            openapi.Parameter(name="token",
+                required=True,
+                type="string",
+                in_="path",
+                description="account confirmation token",
+            ),
+        ],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['password'],
+            properties={
+                'password': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        security=[],
+        tags=['Confirm'],
+    )
+    def post(self, request):
         """
             Activates an account if it is not already activated.
             Also provides log-in token to the user because it's annoying
             to connect after validating its email.
         """
 
-        token = request.GET.get('token')
+        token = request.query_params.get('token')
         password = request.data.get("password")
 
         if token is None:

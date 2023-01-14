@@ -250,6 +250,11 @@ class LoginView(APIView):
                 'error': 'no such account',
             }, status=HTTP_404_NOT_FOUND)
 
+        if account.is_disabled:
+            return Response({
+                'error': 'please confirm account first',
+            }, status=HTTP_403_FORBIDDEN)
+
         authenticated_account = authenticate(request, email=email, password=password)
         if not authenticated_account:
             return Response({

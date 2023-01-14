@@ -1,18 +1,9 @@
 from rest_framework import viewsets, permissions
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.response import Response
-from rest_framework.status import (
-        HTTP_400_BAD_REQUEST,
-        HTTP_200_OK,
-        HTTP_403_FORBIDDEN,
-        HTTP_404_NOT_FOUND,
-        HTTP_406_NOT_ACCEPTABLE
-        )
-
 from api.serializers import *
 from api.serializers.domains import *
 
-from api.permissions import IsAdmin, IsOwner, IsCustomer, PostOnly
+from api.permissions import IsAdmin, IsOwner, PostOnly
 
 """This module stores the generic viewsets used when basic CRUD is required
 
@@ -30,7 +21,6 @@ class RegisterViewset(viewsets.ModelViewSet):
     permission_classes = [PostOnly]
     authentication_classes = []
     serializer_class = CustomerSerializer
-
 
 class CustomerViewset(viewsets.ModelViewSet):
     queryset = Customer.objects.all()

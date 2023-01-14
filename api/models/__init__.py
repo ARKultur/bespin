@@ -36,7 +36,7 @@ class Auth(AbstractUser):
     # account confirmation / password reset stuff
     # TODO: have a different token for password reset & account confirmation
     tmp_token = models.CharField(max_length=32, null=True, default=None)
-    is_disabled = models.BooleanField(default=False)
+    is_disabled = models.BooleanField(default=True)
 
     def set_password(self, raw_password: str | None = None):
         if not raw_password:
@@ -46,7 +46,6 @@ class Auth(AbstractUser):
 
     def check_password(self, raw_password=None) -> bool:
         return PasswordHasher().verify(self.password, raw_password) if raw_password else False
-
 
     def send_confirm_email(self) -> int:
         url = f'https://arkultur.creative-rift.com/confirm?token={self.tmp_token}'
@@ -67,6 +66,11 @@ class Auth(AbstractUser):
             [self.email],
             fail_silently=False,
         )
+
+    def save(self, *args, **kwargs) -> None:
+        if self.pk is None:
+            self.send_confirm_email()
+        return super().save(*args, **kwargs)
 
 
 class Admin(models.Model):

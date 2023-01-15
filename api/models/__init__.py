@@ -69,8 +69,9 @@ class Auth(AbstractUser):
         )
 
     def save(self, *args, **kwargs) -> None:
-        #if self.pk is None:
-        #    self.send_confirm_email()
+        if self.pk is None:
+            #self.send_confirm_email()
+            self.is_disabled = True
         return super().save(*args, **kwargs)
 
 

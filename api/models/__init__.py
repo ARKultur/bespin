@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from argon2 import PasswordHasher
@@ -52,7 +53,7 @@ class Auth(AbstractUser):
         return send_mail(
             f'Welcome {self.first_name} !',
             f'Hello and welcome!\nPlease click on the following link to confirm your account:{url}',
-            'noreply@arkultur.creative-rift.com',
+            os.environ['SENDGRID_SENDER'],
             [self.email],
             fail_silently=False,
         )
@@ -62,14 +63,14 @@ class Auth(AbstractUser):
         return send_mail(
             f'{self.first_name}, reset your password',
             f'Please click on the following link to reset your password:{url}',
-            'noreply@arkultur.creative-rift.com',
+            os.environ['SENDGRID_SENDER'],
             [self.email],
             fail_silently=False,
         )
 
     def save(self, *args, **kwargs) -> None:
-        if self.pk is None:
-            self.send_confirm_email()
+        #if self.pk is None:
+        #    self.send_confirm_email()
         return super().save(*args, **kwargs)
 
 

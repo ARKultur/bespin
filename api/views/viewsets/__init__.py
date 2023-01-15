@@ -1,10 +1,3 @@
-from rest_framework import viewsets, permissions
-from rest_framework.authentication import TokenAuthentication
-from api.serializers import *
-from api.serializers.domains import *
-
-from api.permissions import IsAdmin, IsOwner, PostOnly
-
 """This module stores the generic viewsets used when basic CRUD is required
 
 - AuthViewset: Auth class CRUD
@@ -15,17 +8,29 @@ from api.permissions import IsAdmin, IsOwner, PostOnly
 - AddressViewset: Address class CRUD (no preloaded data)
 """
 
+from typing import List
+from rest_framework import viewsets, permissions
+from rest_framework.authentication import TokenAuthentication
+
+from api.serializers import AdminSerializer, CustomerSerializer, AuthSerializer
+from api.serializers.domains import NodeSerializer, AddressSerializer
+
+from api.models import Admin, Auth, Customer
+from api.models.domains import Address, Node
+
+from api.permissions import IsAdmin, IsOwner, PostOnly
+
 
 class RegisterViewset(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     permission_classes = [PostOnly]
-    authentication_classes = []
+    authentication_classes: List[type[TokenAuthentication]] = []
     serializer_class = CustomerSerializer
 
 class CustomerViewset(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
-    permission_classes = []
-    authentication_classes = []
+    permission_classes = [permissions.IsAuthenticated & IsAdmin | IsOwner]
+    authentication_classes = [TokenAuthentication]
     serializer_class = CustomerSerializer
 
 

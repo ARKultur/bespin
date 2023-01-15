@@ -1,18 +1,17 @@
-from rest_framework import routers
-from rest_framework.urls import path
-from django.urls import re_path
+"""Module responsible for storing API routes & OpenAPI config"""
 
+from rest_framework import routers
+from rest_framework import permissions
+from rest_framework.urls import path
+
+from django.urls import re_path
 from django.conf.urls import include
 
-from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from api.views import *
-from api.views.viewsets import *
-
-
-"""Module responsible for storing API routes & OpenAPI config"""
+from api.views import LoginView, LogoutView, PingView, ConfirmAccountView, ResetPasswordView
+from api.views.viewsets import NodeViewset, AddressViewset, RegisterViewset, CustomerViewset, AdminViewset
 
 schema_view = get_schema_view(
    openapi.Info(

@@ -12,7 +12,7 @@ class AuthSerializer(serializers.ModelSerializer):
         model = Auth
         fields = [
             'username', 'email', 'first_name', 'last_name',
-            'last_login', 'date_joined', 'password'
+            'last_login', 'date_joined', 'password', 'phone_number'
         ]
 
     def update(self, instance, validated_data):

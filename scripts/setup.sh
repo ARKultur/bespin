@@ -41,9 +41,9 @@ install_postgresql () {
 ## SCRIPT ##
 ############
 
-install_requirements || exit 1
+# install_requirements || exit 1
 
-. ${VENV_PATH}/bin/activate
+#. ${VENV_PATH}/bin/activate
 
 install_postgresql
 python3 manage.py migrate

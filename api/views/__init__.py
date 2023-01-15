@@ -290,7 +290,7 @@ class LoginView(APIView):
                 'error': 'please confirm account first',
             }, status=HTTP_403_FORBIDDEN)
 
-        authenticated_account = authenticate(request, email=email, password=password)
+        authenticated_account = authenticate(request, username=email, password=password)
         if not authenticated_account:
             return Response({
                 'error': 'incorrect password',
@@ -298,7 +298,7 @@ class LoginView(APIView):
 
         token, _ = Token.objects.get_or_create(user=account)
         return Response({
-            'token': token,
+            'token': str(token),
             'id': account.id,
         }, status=HTTP_201_CREATED)
 

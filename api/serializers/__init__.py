@@ -17,9 +17,8 @@ class AuthSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         if 'password' in validated_data:
-            passwd = validated_data['password']
-            validated_data['password'] = PasswordHasher().hash(passwd)
-
+            password = validated_data.pop('password')
+            validated_data['password'] = PasswordHasher().hash(password)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
@@ -29,10 +28,8 @@ class AuthSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         if 'password' in validated_data:
-            passwd = validated_data['password']
-            validated_data.pop('password')
-            validated_data['password'] = PasswordHasher().hash(passwd)
-
+            password = validated_data.pop('password')
+            validated_data['password'] = PasswordHasher().hash(password)
         return Auth.objects.create(**validated_data)
 
 
@@ -53,10 +50,9 @@ class CustomerSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def create(self, validated_data):
-        auth_data = validated_data.get('auth')
-        auth_data['role'] = 1
-        auth_data['is_superuser'] = False
-        auth_data['is_staff'] = False
+        validated_data['auth']['role'] = 1
+        validated_data['auth']['is_superuser'] = False
+        validated_data['auth']['is_staff'] = False
         auth = create_instance(AuthSerializer, validated_data, 'auth')
         return Customer.objects.create(auth=auth, **validated_data)
 
@@ -70,10 +66,9 @@ class AdminSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        auth_data = validated_data.get('auth')
-        auth_data['role'] = 2
-        auth_data['is_superuser'] = True
-        auth_data['is_staff'] = True
+        validated_data['auth']['role'] = 2
+        validated_data['auth']['is_superuser'] = True
+        validated_data['auth']['is_staff'] = True
         auth = create_instance(AuthSerializer, validated_data, 'auth')
         return Admin.objects.create(auth=auth, **validated_data)
 
@@ -83,4 +78,4 @@ class AdminSerializer(serializers.ModelSerializer):
             nested_instance = instance.auth
             nested_data = validated_data.pop('auth')
             nested_serializer.update(nested_instance, nested_data)
-        return super(AdminSerializer, self).update(instance, validated_data)
+        return super().update(instance, validated_data)

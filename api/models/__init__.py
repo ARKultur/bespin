@@ -46,6 +46,7 @@ class Auth(AbstractUser):
     role = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, editable=False)
     password = models.CharField(max_length=128)
     phone_number = PhoneNumberField(null=True, blank=True)
+    email = models.EmailField(unique=True, null=False, blank=False)
 
     # account confirmation / password reset stuff
     # TODO: have a different token for password reset & account confirmation
@@ -86,7 +87,7 @@ class Auth(AbstractUser):
     def save(self, *args, **kwargs) -> None:
         if self.pk is None:
             #self.send_confirm_email()
-            self.is_disabled = True
+            self.is_disabled = False
         return super().save(*args, **kwargs)
 
 

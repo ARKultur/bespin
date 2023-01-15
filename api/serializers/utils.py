@@ -11,5 +11,5 @@ def create_instance(class_serializer: Any, data: dict[str, str], object_name: st
     serializer = class_serializer(data=object_data)
 
     if serializer.is_valid():
-        return serializer.create(validated_data=object_data)
+        return serializer.create(object_data)
     return None

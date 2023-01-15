@@ -21,7 +21,7 @@ from api.models.domains import Address, Node
 from api.permissions import IsAdmin, IsOwner, PostOnly
 
 
-class RegisterViewset(viewsets.ModelViewSet):
+class RegisterViewset(viewsets.ModelViewSet): # pylint: disable=too-many-ancestors
 
     """
         RegisterViewset:
@@ -33,7 +33,7 @@ class RegisterViewset(viewsets.ModelViewSet):
     authentication_classes: List[type[TokenAuthentication]] = []
     serializer_class = CustomerSerializer
 
-class CustomerViewset(viewsets.ModelViewSet):
+class CustomerViewset(viewsets.ModelViewSet): # pylint: disable=too-many-ancestors
 
     """
         CustomerViewset
@@ -46,7 +46,7 @@ class CustomerViewset(viewsets.ModelViewSet):
     serializer_class = CustomerSerializer
 
 
-class AdminViewset(viewsets.ModelViewSet):
+class AdminViewset(viewsets.ModelViewSet): # pylint: disable=too-many-ancestors
 
     """
        AdminViewset
@@ -59,7 +59,7 @@ class AdminViewset(viewsets.ModelViewSet):
     serializer_class = AdminSerializer
 
 
-class AuthViewset(viewsets.ModelViewSet):
+class AuthViewset(viewsets.ModelViewSet): # pylint: disable=too-many-ancestors
 
     """
         AuthViewset
@@ -72,7 +72,7 @@ class AuthViewset(viewsets.ModelViewSet):
     serializer_class = AuthSerializer
 
 
-class NodeViewset(viewsets.ModelViewSet):
+class NodeViewset(viewsets.ModelViewSet): # pylint: disable=too-many-ancestors
 
     """
         NodeViewset
@@ -84,7 +84,7 @@ class NodeViewset(viewsets.ModelViewSet):
     serializer_class = NodeSerializer
 
 
-class AddressViewset(viewsets.ModelViewSet):
+class AddressViewset(viewsets.ModelViewSet): # pylint: disable=too-many-ancestors
 
     """
         AddressViewset

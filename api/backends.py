@@ -16,12 +16,13 @@ class EmailBackend(ModelBackend):
     supports_inactive_user = False
 
     def get_user_by_email(self, email) -> Optional[AbstractBaseUser]:
+        """fetches user by his email"""
         return Auth.objects.filter(email=email).first()
 
     def get_user(self, user_id) -> Optional[AbstractBaseUser]:
         return Auth.objects.filter(pk=user_id).first()
 
-    def authenticate(self, request, username=None, password=None, **kwargs):
+    def authenticate(self, _, username=None, password=None, **__):
         try:
             user = self.get_user_by_email(email=username)
             return user if user and password and user.check_password(password) else None

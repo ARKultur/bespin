@@ -1,16 +1,17 @@
-from rest_framework import serializers
+"""This modules stores the serializers related to administered domains"""
 
-from api.serializers.utils import create_instance, create_mutiple_instances
-from api.serializers import CustomerSerializer
+from rest_framework import serializers
 
 from api.models.domains import Node, Address
 from api.models import Customer
-
-"""This modules stores the serializers related to administered domains"""
+from api.serializers.utils import create_instance
 
 
 class NodeSerializer(serializers.ModelSerializer):
-    address = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Address.objects.all())
+    """NOT nested Serializer for Addresses & Nodes"""
+
+    address = serializers.PrimaryKeyRelatedField(many=False, read_only=False,
+                                                 queryset=Address.objects.all())
 
     class Meta:
         model = Node
@@ -18,6 +19,8 @@ class NodeSerializer(serializers.ModelSerializer):
 
 
 class AddressSerializer(serializers.ModelSerializer):
+    """Nested Serializer for Addresses & Customers"""
+
     owner = serializers.PrimaryKeyRelatedField(many=False, read_only=False, queryset=Customer.objects.all())
 
     class Meta:
@@ -28,6 +31,8 @@ class AddressSerializer(serializers.ModelSerializer):
         ]
 
 class NestedNodeSerializer(serializers.ModelSerializer):
+    """Nested Node serializer, with Addresses (and therefore Customers), and Nodes"""
+
     address = AddressSerializer(many=False, read_only=False)
 
     class Meta:

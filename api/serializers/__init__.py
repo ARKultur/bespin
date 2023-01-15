@@ -1,13 +1,13 @@
-from rest_framework import serializers
-from argon2 import PasswordHasher
-from api.models import *
-
-from api.serializers.utils import create_instance
-
 """This module stores all the basic serializers for user & authentication management"""
 
+from rest_framework import serializers
+from argon2 import PasswordHasher
+
+from api.models import Admin, Customer, Auth
+from api.serializers.utils import create_instance
 
 class AuthSerializer(serializers.ModelSerializer):
+    """Serializer for Base Auth model (should only be used nested in other serializers)"""
     class Meta:
         model = Auth
         fields = [
@@ -20,7 +20,7 @@ class AuthSerializer(serializers.ModelSerializer):
             passwd = validated_data['password']
             validated_data['password'] = PasswordHasher().hash(passwd)
 
-        return super(AuthSerializer, self).update(instance, validated_data)
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -37,6 +37,7 @@ class AuthSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+    """serializer used for Customer CRUD operations"""
     auth = AuthSerializer(many=False, read_only=False)
 
     class Meta:
@@ -49,7 +50,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             nested_instance = instance.auth
             nested_data = validated_data.pop('auth')
             nested_serializer.update(nested_instance, nested_data)
-        return super(CustomerSerializer, self).update(instance, validated_data)
+        return super().update(instance, validated_data)
 
     def create(self, validated_data):
         auth_data = validated_data.get('auth')
@@ -61,6 +62,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 
 class AdminSerializer(serializers.ModelSerializer):
+    """serializer used for Admin CRUD operations"""
     auth = AuthSerializer(many=False, read_only=False)
 
     class Meta:

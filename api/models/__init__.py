@@ -1,11 +1,3 @@
-import os
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from argon2 import PasswordHasher
-from phonenumber_field.modelfields import PhoneNumberField
-from django.core.mail import send_mail
-
-
 """This module manages generic models required for users & authentication
 
 The following models are present here:
@@ -15,8 +7,29 @@ The following models are present here:
     - Admin: Model used for admins. Can do account creation, overall administration, etc.
 """
 
+import os
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from argon2 import PasswordHasher
+from phonenumber_field.modelfields import PhoneNumberField
+from django.core.mail import send_mail
+
 
 class Auth(AbstractUser):
+    """
+        Auth Model:
+
+            Basic model used to log in users.
+            When authenticating users through views, this is the model recovered from the Token
+
+        role: string containing the current role of the user
+        password: hashed password of the user
+        phone_number: phone number used for MFA (should use E164 format)
+        tmp_token: token automatically generated, used for password reset or account confirmation
+        is_disabled: boolean value checking if user has been locked, or has not confirmed account yet
+
+    """
+
     class Meta:
         verbose_name = 'Basic user auth model'
         verbose_name_plural = 'Basic user auth models'
@@ -49,6 +62,7 @@ class Auth(AbstractUser):
         return PasswordHasher().verify(self.password, raw_password) if raw_password else False
 
     def send_confirm_email(self) -> int:
+        """sends account-confirmation email"""
         url = f'https://arkultur.creative-rift.com/confirm?token={self.tmp_token}'
         return send_mail(
             f'Welcome {self.first_name} !',
@@ -59,6 +73,7 @@ class Auth(AbstractUser):
         )
 
     def send_reset_password_email(self) -> int:
+        """sends password-reset email"""
         url = f'https://arkultur.creative-rift.com/reset?token={self.tmp_token}'
         return send_mail(
             f'{self.first_name}, reset your password',
@@ -76,6 +91,13 @@ class Auth(AbstractUser):
 
 
 class Admin(models.Model):
+    """
+        Admin model
+
+        auth -> one-to-one to Auth model
+        creation_date -> read-only field expressing creation date
+
+    """
     class Meta:
         verbose_name = 'Administrator'
         verbose_name_plural = 'Administrators'
@@ -87,6 +109,14 @@ class Admin(models.Model):
 
 
 class Customer(models.Model):
+    """
+        Customer model
+
+        (Main difference with Admin model is that Customers can own domains)
+
+        auth -> one-to-one to Auth model
+        creation_date -> read-only field expressing creation date
+    """
     class Meta:
         verbose_name = 'Customer'
         verbose_name_plural = 'Customers'

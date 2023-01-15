@@ -1,11 +1,12 @@
-import os
+"""Initiates first user on bare deployments"""
 from django.core.management.base import BaseCommand
 
 from api.models import Admin, Auth
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
+    """Command creating the first user (admin) if database does not have any."""
+    def handle(self, *_, **__):
         if Admin.objects.count() == 0:
             auth = Auth(
                     role=2,

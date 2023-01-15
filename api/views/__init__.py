@@ -1,3 +1,7 @@
+"""
+    This module stores all the views that are not part of a viewset
+"""
+
 from typing import List, Optional, Type
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
@@ -18,14 +22,25 @@ from rest_framework.status import (
 
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from api.backends import EmailBackend
 
-from api.permissions import *
-from api.serializers import *
-from api.models import *
+from api.backends import EmailBackend
+from api.models import Auth
 
 
 class ResetPasswordView(APIView):
+
+    """
+    ResetPasswordView
+
+        for all your password reset needs
+
+        post:
+            -> sets a new password (expects token value in path parameter & password in body)
+
+        put:
+            -> sets email to reset password for an account (expects email in body)
+    """
+
     permissions_class: List[Type[TokenAuthentication]] = []
     authentication_classes: List[Type[AllowAny]] = []
 
@@ -62,14 +77,13 @@ class ResetPasswordView(APIView):
             return Response({
                     'error': 'could not find account',
                 }, status=HTTP_404_NOT_FOUND)
-        else:
-            success_msg: str = 'password changed. please log in'
-            user.set_password(new_pass)
-            user.save()
+        success_msg: str = 'password changed. please log in'
+        user.set_password(new_pass)
+        user.save()
 
-            return Response({
-                    'message': success_msg,
-            }, status=HTTP_200_OK)
+        return Response({
+                'message': success_msg,
+        }, status=HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_description="sends email to reset account's password",
@@ -96,7 +110,7 @@ class ResetPasswordView(APIView):
                 'error': 'bad request',
             }, status=HTTP_400_BAD_REQUEST)
 
-        elif account is None:
+        if account is None:
             return Response({
                 'error': 'no such account. please register',
             }, status=HTTP_404_NOT_FOUND)
@@ -109,6 +123,19 @@ class ResetPasswordView(APIView):
 
 
 class ConfirmAccountView(APIView):
+
+    """
+    ConfirmAccountView
+
+        View used to confirm account upon creation
+
+        put:
+            -> Requests new confirmation email (Expects email field in body)
+
+        post:
+            -> Confirms account creation (expects token in path, password in body)
+    """
+
     permission_classes = [AllowAny]
     authentication_classes: List[Type[TokenAuthentication]]= []
 
@@ -137,7 +164,7 @@ class ConfirmAccountView(APIView):
 
         email = email.lower()
         user = Auth.objects.filter(email=email).first()
-        if user:
+        if user is not None:
             if user.is_disabled:
                 user.tmp_token = None
                 user.send_confirm_email()
@@ -149,8 +176,7 @@ class ConfirmAccountView(APIView):
             return Response({
                 'error': 'account is not locked and has already confirmed',
             }, status=HTTP_403_FORBIDDEN)
-        else:
-            return Response(status=HTTP_404_NOT_FOUND)
+        return Response(status=HTTP_404_NOT_FOUND)
 
 
     @swagger_auto_schema(
@@ -216,6 +242,14 @@ class ConfirmAccountView(APIView):
 
 
 class LoginView(APIView):
+    """
+        LoginView:
+            Logs in any account
+
+            post:
+                -> Expects email & password in body, returns auth token
+    """
+
     permission_classes = [AllowAny]
     authentication_classes: List[Type[TokenAuthentication]]= []
 
@@ -234,7 +268,8 @@ class LoginView(APIView):
     )
 
     @csrf_exempt
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        """Logs in account, after checking if account has been disabled or not"""
         email = request.data.get("email")
         password = request.data.get("password")
 
@@ -261,7 +296,7 @@ class LoginView(APIView):
                 'error': 'incorrect password',
             }, status=HTTP_403_FORBIDDEN)
 
-        token, _created = Token.objects.get_or_create(user=account)
+        token, _ = Token.objects.get_or_create(user=account)
         return Response({
             'token': token,
             'id': account.id,
@@ -269,6 +304,8 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
+    """LogoutView: Logs out account"""
+
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
@@ -286,6 +323,7 @@ class LogoutView(APIView):
 
     @staticmethod
     def get(request):
+        """Just destroys token if it finds one. As simple as it gets."""
         if hasattr(request.user, 'email'):
             request.user.auth_token.delete()
             return Response({
@@ -298,7 +336,10 @@ class LogoutView(APIView):
 
 
 class PingView(APIView):
+    """PingView: Simple test route to check if service is healthy"""
+
     @staticmethod
     def get(request):
+        """Returns Pong!"""
         content = {'message': 'pong !'}
         return Response(content, status=HTTP_200_OK)

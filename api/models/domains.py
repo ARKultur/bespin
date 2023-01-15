@@ -64,6 +64,7 @@ class Node(models.Model):
         verbose_name_plural = 'Nodes'
         ordering = ['name']
 
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=64)
     latitude = models.FloatField()
     longitude = models.FloatField()

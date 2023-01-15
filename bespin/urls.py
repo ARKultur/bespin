@@ -11,9 +11,11 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 from api.views import LoginView, LogoutView, PingView, ConfirmAccountView, ResetPasswordView
-from api.views.viewsets import NodeViewset, AddressViewset, RegisterViewset, CustomerViewset, AdminViewset
+from api.views.viewsets import NodeViewset, AddressViewset, RegisterViewset, CustomerViewset, \
+        AdminViewset
 
-schema_view = get_schema_view(
+# SchemaView provides view for OpenAPI specifications (using Redoc template)
+SchemaView = get_schema_view(
    openapi.Info(
       title="ARKultur API",
       default_version='v2',
@@ -39,7 +41,7 @@ urlpatterns = [
     path('confirm', ConfirmAccountView.as_view()),
     path('reset', ResetPasswordView.as_view()),
     path('register', RegisterViewset.as_view({'post': 'create'})),
-    re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    re_path(r'^docs/$', SchemaView.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     re_path(r'^auth/', include('trench.urls')),
     re_path(r'^auth/', include('trench.urls.authtoken')),
 ] + router.urls

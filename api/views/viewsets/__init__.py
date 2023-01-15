@@ -22,12 +22,24 @@ from api.permissions import IsAdmin, IsOwner, PostOnly
 
 
 class RegisterViewset(viewsets.ModelViewSet):
+
+    """
+        RegisterViewset:
+            Binding to CustomerSerializer in order to register new account
+    """
+
     queryset = Customer.objects.all()
     permission_classes = [PostOnly]
     authentication_classes: List[type[TokenAuthentication]] = []
     serializer_class = CustomerSerializer
 
 class CustomerViewset(viewsets.ModelViewSet):
+
+    """
+        CustomerViewset
+            CRUD operations for Customer model (encompasses Auth model as well)
+    """
+
     queryset = Customer.objects.all()
     permission_classes = [permissions.IsAuthenticated & IsAdmin | IsOwner]
     authentication_classes = [TokenAuthentication]
@@ -35,6 +47,12 @@ class CustomerViewset(viewsets.ModelViewSet):
 
 
 class AdminViewset(viewsets.ModelViewSet):
+
+    """
+       AdminViewset
+            CRUD operations for Admin model (encompasses Auth model as well)
+    """
+
     queryset = Admin.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAdmin]
     authentication_classes = [TokenAuthentication]
@@ -42,6 +60,12 @@ class AdminViewset(viewsets.ModelViewSet):
 
 
 class AuthViewset(viewsets.ModelViewSet):
+
+    """
+        AuthViewset
+            currently unused but might be useful later
+    """
+
     queryset = Auth.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
     authentication_classes = [TokenAuthentication]
@@ -49,6 +73,11 @@ class AuthViewset(viewsets.ModelViewSet):
 
 
 class NodeViewset(viewsets.ModelViewSet):
+
+    """
+        NodeViewset
+            CRUD for Node models
+    """
     queryset = Node.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
     authentication_classes = [TokenAuthentication]
@@ -56,6 +85,12 @@ class NodeViewset(viewsets.ModelViewSet):
 
 
 class AddressViewset(viewsets.ModelViewSet):
+
+    """
+        AddressViewset
+            CRUD for Address models
+    """
+
     queryset = Address.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAdmin | IsOwner]
     authentication_classes = [TokenAuthentication]

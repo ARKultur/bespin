@@ -49,7 +49,7 @@ echo "$(date) - Running database migrations"
 python manage.py makemigrations
 python manage.py migrate
 
-python manage.py seeds
+#python manage.py seeds
 
 echo "$(date) - Starting task"
 exec gunicorn api.wsgi --config gunicorn.conf.py
